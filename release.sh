@@ -4,21 +4,23 @@
 # Setzen der Sprache auf default wert für automatische Auswertung von Nachrichten...
 export LANG=C
 
-SCRIPT_BASEDIR=$(pwd);
+RELEASE_DIR=$(pwd);
 
 releaseVersion=${1:-`read -p "Enter release version (i.e. '1.0.3'): " TMP && echo $TMP`}
 developmentVersion=${2:-`read -p "Enter development version (i.e. '1.0.4-SNAPSHOT'): " TMP && echo $TMP`}
-mvn="mvn -l $SCRIPT_BASEDIR/release-log-$releaseVersion.txt "
+mvn="mvn -l $RELEASE_DIR/release-log-$releaseVersion.txt "
 
 
 echo
 echo "start releasing projects ..."
-echo "basedir=$SCRIPT_BASEDIR"
+echo "RELEASE_DIR=$RELEASE_DIR"
 echo "mvn=$mvn"
 
-cd releasing-parent
+cd ..
 
-$mvn jgitflow:release-start -DautoVersionSubmodules=true -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion -f project-parent/pom.xml
+cd project-parent
+
+$mvn jgitflow:release-start -DautoVersionSubmodules=true -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-start successful"
@@ -27,7 +29,7 @@ echo "release-start failed"
 exit $STATUS
 fi
 
-$mvn jgitflow:release-finish -DnoDeploy=true -f project-parent/pom.xml 
+$mvn jgitflow:release-finish -DnoDeploy=true 
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-finish successful"
@@ -39,8 +41,8 @@ fi
 cd ..
 
 
-cd releasing-project1
-$mvn versions:update-parent -DgenerateBackupPoms=false -f project1/pom.xml
+cd project-a
+$mvn versions:update-parent -DgenerateBackupPoms=false
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "update-parent successful"
@@ -58,7 +60,7 @@ echo "commit update-parent failed"
 exit $STATUS
 fi
 
-$mvn jgitflow:release-start -DautoVersionSubmodules=true  -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion  -f project1/pom.xml 
+$mvn jgitflow:release-start -DautoVersionSubmodules=true  -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-start successful"
@@ -68,7 +70,7 @@ exit $STATUS
 fi
 
 
-$mvn jgitflow:release-finish -DnoDeploy=true -f project1/pom.xml
+$mvn jgitflow:release-finish -DnoDeploy=true
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-finish successful"
@@ -79,10 +81,10 @@ fi
 
 cd ..
 
-###### project 2
-cd releasing-project2
+###### project-b
+cd project-b
 
-$mvn versions:update-parent -DgenerateBackupPoms=false -f project2/pom.xml
+$mvn versions:update-parent -DgenerateBackupPoms=false
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "update-parent successful"
@@ -91,7 +93,7 @@ echo "update-parent failed"
 exit $STATUS
 fi
 
-$mvn versions:update-properties -DincludeProperties=project1.version -DgenerateBackupPoms=false -f project2/pom.xml
+$mvn versions:update-properties -DincludeProperties=project-a.version -DgenerateBackupPoms=false
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "update-properties successful"
@@ -110,7 +112,7 @@ echo "commit update-parent failed"
 exit $STATUS
 fi
 
-$mvn jgitflow:release-start -DautoVersionSubmodules=true  -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion  -f project2/pom.xml 
+$mvn jgitflow:release-start -DautoVersionSubmodules=true  -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-start successful"
@@ -120,7 +122,7 @@ exit $STATUS
 fi
 
 
-$mvn jgitflow:release-finish -DnoDeploy=true -f project2/pom.xml
+$mvn jgitflow:release-finish -DnoDeploy=true
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-finish successful"
