@@ -8,6 +8,10 @@ RELEASE_DIR=$(pwd);
 
 releaseVersion=${1:-`read -p "Enter release version (i.e. '1.0.3'): " TMP && echo $TMP`}
 developmentVersion=${2:-`read -p "Enter development version (i.e. '1.0.4-SNAPSHOT'): " TMP && echo $TMP`}
+username=${3:-`read -p "Enter git user " TMP && echo $TMP`}
+password=${4:-`read -p "Enter git password " TMP && echo $TMP`}
+
+
 mvn="mvn -l $RELEASE_DIR/release-log-$releaseVersion.txt "
 
 
@@ -20,7 +24,7 @@ cd ..
 
 cd project-parent
 
-$mvn jgitflow:release-start -DautoVersionSubmodules=true -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion
+$mvn jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-start successful"
@@ -35,6 +39,15 @@ if [ $STATUS -eq 0 ]; then
 echo "release-finish successful"
 else
 echo "release-finish failed"
+exit $STATUS
+fi
+
+git push
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
+echo "git push successful"
+else
+echo "git push failed"
 exit $STATUS
 fi
 
@@ -60,7 +73,7 @@ echo "commit update-parent failed"
 exit $STATUS
 fi
 
-$mvn jgitflow:release-start -DautoVersionSubmodules=true  -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
+$mvn jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-start successful"
@@ -76,6 +89,15 @@ if [ $STATUS -eq 0 ]; then
 echo "release-finish successful"
 else
 echo "release-finish failed"
+exit $STATUS
+fi
+
+git push
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
+echo "git push successful"
+else
+echo "git push failed"
 exit $STATUS
 fi
 
@@ -112,7 +134,7 @@ echo "commit update-parent failed"
 exit $STATUS
 fi
 
-$mvn jgitflow:release-start -DautoVersionSubmodules=true  -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
+$mvn jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
 echo "release-start successful"
@@ -128,6 +150,15 @@ if [ $STATUS -eq 0 ]; then
 echo "release-finish successful"
 else
 echo "release-finish failed"
+exit $STATUS
+fi
+
+git push
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
+echo "git push successful"
+else
+echo "git push failed"
 exit $STATUS
 fi
 
