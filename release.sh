@@ -4,56 +4,35 @@
 # Setzen der Sprache auf default wert für automatische Auswertung von Nachrichten...
 export LANG=C
 
-RELEASE_DIR=$(pwd);
-
+# external param
 releaseVersion=${1:-`read -p "Enter release version (i.e. '1.0.3'): " TMP && echo $TMP`}
 developmentVersion=${2:-`read -p "Enter development version (i.e. '1.0.4-SNAPSHOT'): " TMP && echo $TMP`}
-username=${3:-`read -p "Enter git user " TMP && echo $TMP`}
-password=${4:-`read -p "Enter git password " TMP && echo $TMP`}
+username=${3:-`read -p "Enter git user: " TMP && echo $TMP`}
+password=${4:-`read -s -p "Enter git password: " TMP && echo $TMP`}
+RELEASE_DIR=$(pwd)
+WORKING_DIR=$RELEASE_DIR/release-$releaseVersion;
 
-
-mvn="mvn -l $RELEASE_DIR/release-log-$releaseVersion.txt "
-
+# internal variables
+mvn="mvn -l $WORKING_DIR/release-log-$releaseVersion.txt "
 
 echo
 echo "start releasing projects ..."
 echo "RELEASE_DIR=$RELEASE_DIR"
+echo "WORKING_DIR=$WORKING_DIR"
 echo "mvn=$mvn"
 
-cd ..
+mkdir $WORKING_DIR
+cd $WORKING_DIR
+
+git clone https://github.com/osiefart/project-parent.git
+git clone https://github.com/osiefart/project-a.git
+git clone https://github.com/osiefart/project-b.git
 
 cd project-parent
-
-$mvn jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "release-start successful"
-else
-echo "release-start failed"
-exit $STATUS
-fi
-
-$mvn jgitflow:release-finish -DnoDeploy=true 
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "release-finish successful"
-else
-echo "release-finish failed"
-exit $STATUS
-fi
-
-git push
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "git push successful"
-else
-echo "git push failed"
-exit $STATUS
-fi
-
+. $RELEASE_DIR/jgitflow-release.sh
 cd ..
 
-
+###### project-a
 cd project-a
 $mvn versions:update-parent -DgenerateBackupPoms=false
 STATUS=$?
@@ -73,34 +52,7 @@ echo "commit update-parent failed"
 exit $STATUS
 fi
 
-$mvn jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "release-start successful"
-else
-echo "release-start failed"
-exit $STATUS
-fi
-
-
-$mvn jgitflow:release-finish -DnoDeploy=true
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "release-finish successful"
-else
-echo "release-finish failed"
-exit $STATUS
-fi
-
-git push
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "git push successful"
-else
-echo "git push failed"
-exit $STATUS
-fi
-
+. $RELEASE_DIR/jgitflow-release.sh
 cd ..
 
 ###### project-b
@@ -134,33 +86,6 @@ echo "commit update-parent failed"
 exit $STATUS
 fi
 
-$mvn jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion 
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "release-start successful"
-else
-echo "release-start failed"
-exit $STATUS
-fi
-
-
-$mvn jgitflow:release-finish -DnoDeploy=true
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "release-finish successful"
-else
-echo "release-finish failed"
-exit $STATUS
-fi
-
-git push
-STATUS=$?
-if [ $STATUS -eq 0 ]; then
-echo "git push successful"
-else
-echo "git push failed"
-exit $STATUS
-fi
-
+. $RELEASE_DIR/jgitflow-release.sh
 cd ..
 
