@@ -33,11 +33,14 @@ git clone https://github.com/osiefart/project-b.git
 
 # release parent
 cd project-parent
+git checkout develop
 . $RELEASE_DIR/jgitflow-release.sh
 cd ..
 
 ###### project-a
 cd project-a
+git checkout develop
+
 $mvn versions:update-parent -DgenerateBackupPoms=false
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
@@ -63,6 +66,7 @@ cd ..
 
 ###### project-b
 cd project-b
+git checkout develop
 
 $mvn versions:update-parent -DgenerateBackupPoms=false
 STATUS=$?
