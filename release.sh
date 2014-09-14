@@ -13,7 +13,10 @@ RELEASE_DIR=$(pwd)
 WORKING_DIR=$RELEASE_DIR/release-$releaseVersion;
 
 # internal variables
-mvn="mvn -l $WORKING_DIR/release-log-$releaseVersion.txt "
+LOG_FILE=$WORKING_DIR/release-log-$releaseVersion.txt 
+TMP_LOG_FILE=$WORKING_DIR/release-log-$releaseVersion-tmp.txt 
+
+mvn="mvn -l $TMP_LOG_FILE "
 
 echo
 echo "start releasing projects ..."
@@ -28,6 +31,7 @@ git clone https://github.com/osiefart/project-parent.git
 git clone https://github.com/osiefart/project-a.git
 git clone https://github.com/osiefart/project-b.git
 
+# release parent
 cd project-parent
 . $RELEASE_DIR/jgitflow-release.sh
 cd ..
@@ -37,19 +41,21 @@ cd project-a
 $mvn versions:update-parent -DgenerateBackupPoms=false
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
-echo "update-parent successful"
+	echo "update-parent successful"
+	. $RELEASE_DIR/save-log-file.sh	
 else
-echo "update-parent failed"
-exit $STATUS
+	echo "update-parent failed"
+	. $RELEASE_DIR/save-log-file.sh
+	exit $STATUS	
 fi
 
 git commit -a -m "update parent"
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
-echo "commit update-parent successful"
+	echo "commit update-parent successful"
 else
-echo "commit update-parent failed"
-exit $STATUS
+	echo "commit update-parent failed"
+	exit $STATUS	
 fi
 
 . $RELEASE_DIR/jgitflow-release.sh
@@ -61,29 +67,33 @@ cd project-b
 $mvn versions:update-parent -DgenerateBackupPoms=false
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
-echo "update-parent successful"
+	echo "update-parent successful"
+	. $RELEASE_DIR/save-log-file.sh	
 else
-echo "update-parent failed"
-exit $STATUS
+	echo "update-parent failed"
+	. $RELEASE_DIR/save-log-file.sh	
+	exit $STATUS	
 fi
 
 $mvn versions:update-properties -DincludeProperties=project-a.version -DgenerateBackupPoms=false
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
-echo "update-properties successful"
+	echo "update-properties successful"
+	. $RELEASE_DIR/save-log-file.sh	
 else
-echo "update-properties failed"
-exit $STATUS
+	echo "update-properties failed"
+	. $RELEASE_DIR/save-log-file.sh	
+	exit $STATUS	
 fi
 
 
 git commit -a -m "update parent"
 STATUS=$?
 if [ $STATUS -eq 0 ]; then
-echo "commit update-parent successful"
+	echo "commit update-parent successful"
 else
-echo "commit update-parent failed"
-exit $STATUS
+	echo "commit update-parent failed"
+	exit $STATUS	
 fi
 
 . $RELEASE_DIR/jgitflow-release.sh
